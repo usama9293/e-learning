@@ -27,7 +27,7 @@ const TutorAssignment = () => {
   const [description, setDescription] = useState('');
   const [materialFile, setMaterialFile] = useState(null);
   const [due_date, setDueDate] = useState(null);
-  const [points, setPoints] = useState(0);
+  const [points, setPoints] = useState<number>(0);
   const [descriptionError, setDescriptionError] = useState('');
 
   const handleDescriptionChange = (e) => {
@@ -45,23 +45,25 @@ const TutorAssignment = () => {
   const handleOpenUploadDialog = () => setOpenUploadDialog(true);
 const handleCloseUploadDialog = () => {
   setOpenUploadDialog(false);
-  setMaterialName('');
   setMaterialFile(null);
 };
-const handleFileChange = (event) => {
-  setMaterialFile(event.target.files[0]);
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files[0]) {
+    setMaterialFile(e.target.files[0]);
+  }
 };
 
-const handleSubmit = async () => {
-  if (!title || !materialFile || !selectedSession) return;
-
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
   const formData = new FormData();
   formData.append('title', title);
-  formData.append('file', materialFile);
-  formData.append('description',description)
+  formData.append('description', description);
+  formData.append('due_date', due_date);
+  formData.append('total_points', points.toString());
+  if (materialFile) {
+    formData.append('file', materialFile);
+  }
   formData.append('session_id', selectedSession);
-  formData.append('due_date',due_date)
-  formData.append('total_points',points);
 
   try {
     console.log(formData)
@@ -305,11 +307,11 @@ const handleSubmit = async () => {
       margin="normal"
     />
     <TextField
-      fullWidth
-      label="Assignment Total Points"
-      value={points}
+      label="Points"
       type="number"
-      onChange={(e) => setPoints(e.target.value)}
+      value={points}
+      onChange={(e) => setPoints(Number(e.target.value))}
+      fullWidth
       margin="normal"
     />
     <Button

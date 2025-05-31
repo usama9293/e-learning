@@ -16,7 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 const Materials = () => {
   const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -95,7 +95,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (courseId) {
-    setSelectedCourse(Number(courseId));
+    setSelectedCourse(courseId.toString());
   }
 }, [courseId]);
 

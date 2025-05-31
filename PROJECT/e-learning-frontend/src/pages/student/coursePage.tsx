@@ -350,7 +350,7 @@ const CoursePage = () => {
               {/* <h1 className="text-3xl font-bold mb-6">Course ID: {courseId}</h1> */}
 
               <Tabs defaultValue="materials" onValueChange={handleTabChange}>
-                <TabsList className="grid w-full grid-cols-4 mb-4">
+                <TabsList>
                   <TabsTrigger value="materials">Materials</TabsTrigger>
                   <TabsTrigger value="assignments">Assignments</TabsTrigger>
                   {/* <TabsTrigger value="chats">Chats</TabsTrigger>
@@ -382,16 +382,24 @@ const CoursePage = () => {
                   
                       {/* Buttons */}
                       <Stack direction="row" spacing={2}>
-                        <Button
-                          variant="outlined"
-                          color="primary"
+                        <a
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
                           download
+                          style={{
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            padding: '10px 16px',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            display: 'inline-block',
+                          }}
                         >
                           Download
-                        </Button>
+                        </a>
                   
                         
                   

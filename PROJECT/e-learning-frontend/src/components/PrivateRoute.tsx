@@ -1,10 +1,12 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { ReactNode } from "react";
 
 interface PrivateRouteProps {
   role: string;
+  children: ReactNode;
 }
 
-const PrivateRoute = ({ role }: PrivateRouteProps) => {
+const PrivateRoute = ({ role, children }: PrivateRouteProps) => {
   const isAuthenticated = localStorage.getItem("token") !== null;
   const userRole = localStorage.getItem("role");
 
@@ -19,7 +21,7 @@ const PrivateRoute = ({ role }: PrivateRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />; // 👈 Important: Render nested routes
+  return <>{children}</>;
 };
 
 export default PrivateRoute;

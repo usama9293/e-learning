@@ -38,7 +38,7 @@ const handleEdit = (item) => {
 };
 
 const handleEditSave = () => {
-  fetchMaterials(); // or update state
+  // fetchMaterials(); // or update state
 };
 const handleCloseUploadDialog = () => {
   setOpenUploadDialog(false);
@@ -98,8 +98,18 @@ const handleSubmit = async () => {
 };
 
   useEffect(() => {
-    
-    fetchAssignments();
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/assignments/${selectedCourse}`);
+        setMaterials(response.data);
+      } catch (error) {
+        console.error('Error fetching assignments:', error);
+      }
+    };
+
+    if (selectedCourse) {
+      fetchData();
+    }
   }, [selectedCourse]);
 
   const handleUpload = async () => {

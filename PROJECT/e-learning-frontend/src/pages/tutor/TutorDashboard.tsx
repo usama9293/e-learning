@@ -42,11 +42,17 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { fetchCourses } from '../../api/courses';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
+
 interface Course {
   id: number;
-  title: string;
+  name: string;
+  description: string;
   enrolledStudents: number;
   averageProgress: number;
+  created_at: string;
+  created_by: number;
+  image: string;
+  title: string;
 }
 
 interface Student {
@@ -59,23 +65,31 @@ interface Student {
 
 interface Session {
   id: number;
-  course: string;
-  date: string;
-  time: string;
+  course: {
+    id: number;
+    name: string;
+  };
+  days: string;
+  start_time: string;
+  end_time: string;
   students: string[];
+  created_at: string;
+  created_by: number;
 }
 
 interface Material {
   id: number;
   course: string;
   fileName: string;
+  created_at: string;
+  created_by: number;
 }
 
 const TutorDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [ todaysessions, setTodaySessions] = useState([]);
+  const [todaysessions, setTodaySessions] = useState<Session[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [openSessionDialog, setOpenSessionDialog] = useState(false);
   const [sessionForm, setSessionForm] = useState<Partial<Session>>({});
@@ -153,7 +167,12 @@ const TutorDashboard = () => {
   // Session management
   const handleOpenSessionDialog = (session?: Session) => {
     if (session) {
-      setSessionForm(session);
+      setSessionForm({
+        course: session.course,
+        days: session.days,
+        start_time: session.start_time,
+        end_time: session.end_time,
+      });
       setEditSessionId(session.id);
     } else {
       setSessionForm({});
@@ -167,10 +186,19 @@ const TutorDashboard = () => {
     setEditSessionId(null);
   };
   const handleSessionFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSessionForm({ ...sessionForm, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'course') {
+      const selected = courses.find(c => c.id === Number(value));
+      setSessionForm({
+        ...sessionForm,
+        course: selected ? { id: selected.id, name: selected.name } : { id: 0, name: '' }
+      });
+    } else {
+      setSessionForm({ ...sessionForm, [name]: value });
+    }
   };
   const handleSaveSession = () => {
-    if (!sessionForm.course || !sessionForm.date || !sessionForm.time) {
+    if (!sessionForm.course || !sessionForm.days || !sessionForm.start_time || !sessionForm.end_time) {
       setSnackbar({ open: true, message: 'Please fill all fields.', severity: 'error' });
       return;
     }
@@ -178,7 +206,7 @@ const TutorDashboard = () => {
       setSessions(sessions.map(s => s.id === editSessionId ? { ...s, ...sessionForm, students: s.students } as Session : s));
       setSnackbar({ open: true, message: 'Session updated.', severity: 'success' });
     } else {
-      setSessions([...sessions, { id: Date.now(), course: sessionForm.course!, date: sessionForm.date!, time: sessionForm.time!, students: [] }]);
+      setSessions([...sessions, { id: Date.now(), course: sessionForm.course as { id: number; name: string }, days: sessionForm.days as string, start_time: sessionForm.start_time as string, end_time: sessionForm.end_time as string, students: [], created_at: '', created_by: 0 }]);
       setSnackbar({ open: true, message: 'Session created.', severity: 'success' });
     }
     handleCloseSessionDialog();
@@ -201,7 +229,14 @@ const TutorDashboard = () => {
       setSnackbar({ open: true, message: 'Please select a course and file.', severity: 'error' });
       return;
     }
-    setMaterials([...materials, { id: Date.now(), course: materialForm.course, fileName: materialForm.file.name }]);
+    const newMaterial: Material = {
+      id: Date.now(),
+      course: materialForm.course,
+      fileName: materialForm.file.name,
+      created_at: new Date().toISOString(),
+      created_by: 0 // Replace with actual user ID if available
+    };
+    setMaterials([...materials, newMaterial]);
     setSnackbar({ open: true, message: 'Material uploaded.', severity: 'success' });
     setMaterialForm({ course: '', file: null });
     setOpenMaterialDialog(false);
@@ -210,7 +245,7 @@ const TutorDashboard = () => {
   // Calculate summary stats
   const totalCourses = courses.length;
   const totalStudents = Array.isArray(courses)
-  ? courses.reduce((sum, c) => sum + (c.enrolled || 0), 0)
+  ? courses.reduce((sum, c) => sum + (c.enrolledStudents || 0), 0)
   : 0;
   const upcomingSessions = sessions.length;
 
@@ -315,30 +350,38 @@ const TutorDashboard = () => {
                 select
                 label="Course"
                 name="course"
-                value={sessionForm.course || ''}
+                value={sessionForm.course ? (typeof sessionForm.course === 'object' ? sessionForm.course.id : sessionForm.course) : ''}
                 onChange={handleSessionFormChange}
                 fullWidth
                 margin="normal"
               >
                 {courses.map((c) => (
-                  <MenuItem key={c.id} value={c.name}>{c.name}</MenuItem>
+                  <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
                 ))}
               </TextField>
               <TextField
-                label="Date"
-                name="date"
-                type="date"
-                value={sessionForm.date || ''}
+                label="Days"
+                name="days"
+                value={sessionForm.days || ''}
+                onChange={handleSessionFormChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Start Time"
+                name="start_time"
+                type="time"
+                value={sessionForm.start_time || ''}
                 onChange={handleSessionFormChange}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
               />
               <TextField
-                label="Time"
-                name="time"
+                label="End Time"
+                name="end_time"
                 type="time"
-                value={sessionForm.time || ''}
+                value={sessionForm.end_time || ''}
                 onChange={handleSessionFormChange}
                 fullWidth
                 margin="normal"
@@ -432,7 +475,7 @@ const TutorDashboard = () => {
             {course.name}
           </Typography>
           <Typography color="text.secondary" align="center" mb={1}>
-            Number of Students: {course.enrolled}
+            Number of Students: {course.enrolledStudents}
           </Typography>
         </CardContent>
       </Card>

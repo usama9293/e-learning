@@ -27,7 +27,15 @@ const daysOfWeek = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
 ];
 
-
+interface FormData {
+  course: string;
+  tutor_info_id: string;
+  date: Date | null;
+  days: string[];
+  start_time: Date | null;
+  end_time: Date | null;
+  status: string;
+}
 
 const SessionsManagement = () => {
   const [sessions, setSessions] = useState([]);
@@ -37,16 +45,14 @@ const SessionsManagement = () => {
   const [editingSession, setEditingSession] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    course_id: '',
+  const [formData, setFormData] = useState<FormData>({
+    course: '',
     tutor_info_id: '',
     date: null,
     days: [],
-    timeRange: {
-      start: null,
-      end: null,
-    },
-    status: 'scheduled', 
+    start_time: null,
+    end_time: null,
+    status: 'scheduled'
   });
 
   useEffect(() => {
@@ -73,60 +79,63 @@ const SessionsManagement = () => {
 
   const handleOpenDialog = (session = null) => {
     if (session) {
-      setEditingSession(session);
-      setFormData({
-        course_id: session.course_id,
-        tutor_info_id: session.fullname,
-        date: new Date(session.date),
-        days: session.days || [],
-        timeRange: {
-          start: new Date(`1970-01-01T${session.start_time}`),
-          end: new Date(`1970-01-01T${session.end_time}`),
-        },
-        status: session.status,
-      });
+      handleEdit(session);
     } else {
-      setEditingSession(null);
-      setFormData({ 
-        course_id: '',
-        tutor_info_id: '',
-        date: null,
-        days: [],
-        timeRange: { start: null, end: null },
-        status: 'scheduled',
-      });
+      handleCloseDialog();
     }
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => setOpenDialog(false);
+  const handleEdit = (session: any) => {
+    setEditingSession(session);
+    setFormData({
+      course: session.course_id,
+      tutor_info_id: session.tutor_info_id || '',
+      date: session.date ? new Date(session.date) : null,
+      days: session.days || [],
+      start_time: session.start_time ? new Date(`1970-01-01T${session.start_time}`) : null,
+      end_time: session.end_time ? new Date(`1970-01-01T${session.end_time}`) : null,
+      status: session.status || 'scheduled'
+    });
+  };
+
+  const handleCloseDialog = () => {
+    setEditingSession(null);
+    setFormData({
+      course: '',
+      tutor_info_id: '',
+      date: null,
+      days: [],
+      start_time: null,
+      end_time: null,
+      status: 'scheduled'
+    });
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     let payload = {
-        course_id: formData.course_id,
+      course_id: formData.course,
       tutor_info_id: formData.tutor_info_id,
       date: formData.date?.toISOString().split('T')[0],
       days: formData.days,
-      start_time: formData.timeRange.start?.toISOString().substr(11, 5),
-      end_time: formData.timeRange.end?.toISOString().substr(11, 5),
+      start_time: formData.start_time?.toISOString().substr(11, 5),
+      end_time: formData.end_time?.toISOString().substr(11, 5),
       status: formData.status,
-    
-  };
+    };
     
 
     try {
       if (editingSession) {
-        const session_update={
-            course_id: formData.course_id,
+        const session_update = {
+          course_id: formData.course,
           tutor_info_id: formData.tutor_info_id,
           date: formData.date?.toISOString().split('T')[0],
           days: formData.days,
-          start_time: formData.timeRange.start?.toISOString().substr(11, 5),
-          end_time: formData.timeRange.end?.toISOString().substr(11, 5),
+          start_time: formData.start_time?.toISOString().substr(11, 5),
+          end_time: formData.end_time?.toISOString().substr(11, 5),
           status: formData.status,
-        
-      };
+        };
         // payload.session_id=editingSession.id;
         console.log(session_update)
         await api.put(`/sessions/${editingSession.id}`,session_update);
@@ -178,8 +187,8 @@ const SessionsManagement = () => {
               <FormControl fullWidth>
                 <InputLabel>Course</InputLabel>
                 <Select
-                  value={formData.course_id}
-                  onChange={(e) => setFormData({ ...formData, course_id: e.target.value })}
+                  value={formData.course}
+                  onChange={(e) => setFormData({ ...formData, course: e.target.value })}
                 >
                   {courses.map((course) => (
                     <MenuItem key={course.id} value={course.id}>{course.name}</MenuItem>
@@ -219,7 +228,7 @@ const SessionsManagement = () => {
                 <Select
                   multiple
                   value={formData.days}
-                  onChange={(e) => setFormData({ ...formData, days: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, days: Array.isArray(e.target.value) ? e.target.value : [e.target.value] })}
                   renderValue={(selected) => selected.join(', ')}
                 >
                   {daysOfWeek.map((day) => (
@@ -238,16 +247,16 @@ const SessionsManagement = () => {
                   <Grid item xs={6}>
                     <TimePicker
                       label="Start"
-                      value={formData.timeRange.start}
-                      onChange={(val) => setFormData({ ...formData, timeRange: { ...formData.timeRange, start: val } })}
+                      value={formData.start_time}
+                      onChange={(val) => setFormData({ ...formData, start_time: val })}
                       slotProps={{ textField: { fullWidth: true } }}
                     />
                   </Grid>
                   <Grid item xs={6}>
                     <TimePicker
                       label="End"
-                      value={formData.timeRange.end}
-                      onChange={(val) => setFormData({ ...formData, timeRange: { ...formData.timeRange, end: val } })}
+                      value={formData.end_time}
+                      onChange={(val) => setFormData({ ...formData, end_time: val })}
                       slotProps={{ textField: { fullWidth: true } }}
                     />
                   </Grid>

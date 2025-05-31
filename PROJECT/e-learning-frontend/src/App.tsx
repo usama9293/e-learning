@@ -59,17 +59,17 @@ function App() {
           <Route path="/register" element={<StudentRegistration />} />
 
           {/* Student Routes */}
-          <Route element={<PrivateRoute role="student" />}>
+          <Route element={<PrivateRoute role="student">
             <Route path="/student" element={<Layout><StudentDashboard /></Layout>} />
             <Route path="/profile" element={<Layout><Profile /></Layout>} />
             <Route path="/learning-platform" element={<Layout><CoursePage /></Layout>} />
             <Route path="/student/courses" element={<Layout><Courses /></Layout>} />
             <Route path="/course/:courseId" element={<Layout><CoursePage  /></Layout>} />
             <Route path="/student-events" element={<Layout><Events /></Layout>} />
-          </Route>
+          </PrivateRoute>} />
 
           {/* Tutor Routes */}
-          <Route element={<PrivateRoute role="tutor" />}>
+          <Route element={<PrivateRoute role="tutor">
             <Route path="/tutor" element={<Layout><TutorDashboard /></Layout>} />
             <Route path="/tutor/assignments" element={<Layout><TutorAssignment /></Layout>} />
             <Route path="/tutor/materials" element={<Layout><Materials /></Layout>} />
@@ -80,10 +80,10 @@ function App() {
             <Route path="/tutor/courses/:courseId" element={<Layout><TutorCourseDetail /></Layout>} />
             <Route path="/tutor-events" element={<Layout><Events /></Layout>} />
             <Route path="/tutor/profile" element={<Layout><TutorProfile /></Layout>} />
-          </Route>
+          </PrivateRoute>} />
 
           {/* Admin Routes */}
-          <Route element={<PrivateRoute role="admin" />}>
+          <Route element={<PrivateRoute role="admin">
             <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
             <Route path="/admin/user" element={<Layout><UserManagement /></Layout>} />
             <Route path="/admin/payment-monitoring" element={<Layout><PaymentMonitoring /></Layout>} />
@@ -95,7 +95,7 @@ function App() {
             <Route path="/admin/logs/*" element={<LogsManagement />} />
             <Route path="/admin/settings" element={<Settings />} />
             <Route path="/admin-events" element={<Layout><Events /></Layout>} />
-          </Route>
+          </PrivateRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

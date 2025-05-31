@@ -60,18 +60,12 @@ const handleDescriptionChange = (e) => {
   }
 };
 const fetchMaterials = async () => {
-  if (!selectedCourse || !selectedCourse.id) return;
-
-  setLoading(true);
   try {
-    const res = await api.get(`/materials/${selectedCourse.id}`);
-    console.log(res.data)
-    setMaterials(res.data);
-    setError('');
-  } catch (err) {
-    setError('Failed to load materials');
-  } finally {
-    setLoading(false);
+    // Add your materials fetching logic here
+    const response = await api.get(`/materials/${selectedCourse}`);
+    setMaterials(response.data);
+  } catch (error) {
+    console.error('Error fetching materials:', error);
   }
 };
 
@@ -96,7 +90,7 @@ const handleSubmit = async () => {
     await api.post('/materials/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    fetchMaterials(selectedCourse); // refresh material list
+    fetchMaterials(); // refresh material list
     handleCloseUploadDialog();
   } catch (error) {
     console.error('Upload failed:', error);
@@ -104,8 +98,9 @@ const handleSubmit = async () => {
 };
 
   useEffect(() => {
-    
-    fetchMaterials();
+    if (selectedCourse) {
+      fetchMaterials();
+    }
   }, [selectedCourse]);
 
   const handleUpload = async () => {
@@ -155,15 +150,16 @@ const handleSubmit = async () => {
       {error && <p className="text-red-500">{error}</p>}
 
       {materials.length === 0 ? (
-        <Stack Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}><p>No materials found for this course.</p>
-        <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={handleOpenUploadDialog}
-        disabled={!selectedCourse}
-      >
-        Add
-      </Button>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+          <p>No materials found for this course.</p>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenUploadDialog}
+            disabled={!selectedCourse}
+          >
+            Add
+          </Button>
         </Stack>
       ) : (
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>

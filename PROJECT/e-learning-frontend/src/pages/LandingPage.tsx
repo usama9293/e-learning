@@ -9,7 +9,6 @@ import {
   Button
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth'; // adjust if needed
 
 // Icons
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';

@@ -26,8 +26,10 @@ import SideBar from './SideBar';
 interface Log {
   id: number;
   user_id: number;
+  user: string;
   action: string;
   details: string;
+  timestamp: string;
   created_at: string;
 }
 
@@ -166,7 +168,7 @@ const LogsManagement: React.FC = () => {
           <TableBody>
             {logs.map((log) => (
               <TableRow key={log.id}>
-                <TableCell>{log.user}</TableCell>
+                <TableCell>{log.user_id}</TableCell>
                 <TableCell>
                   <Chip
                     label={log.action}
@@ -175,7 +177,7 @@ const LogsManagement: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell>{log.details}</TableCell>
-                <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
+                <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

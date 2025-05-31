@@ -78,7 +78,7 @@ const TutorCoursePage = () => {
     if (course) {
       setState(prev => ({ ...prev, selectedCourse: course }));
     } else {
-      const found = state.sessions.find(session => session.id === courseId);
+      const found = state.sessions.find(session => session.id === Number(courseId));
       if (found) {
         setState(prev => ({ ...prev, selectedCourse: found }));
       }
@@ -198,9 +198,11 @@ const TutorCoursePage = () => {
 
             <div className="p-6">
               <Tabs defaultValue="materials" onValueChange={handleTabChange}>
-                <TabsList className="grid w-full grid-cols-4 mb-4">
+                <TabsList>
                   <TabsTrigger value="materials">Materials</TabsTrigger>
                   <TabsTrigger value="assignments">Assignments</TabsTrigger>
+                  <TabsTrigger value="chats">Chats</TabsTrigger>
+                  <TabsTrigger value="announcements">Announcements</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="materials">

@@ -17,7 +17,6 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { register } from '../../api/auth';
 
 const steps = ['Credentials', 'Personal Information'];
 
@@ -114,7 +113,7 @@ const StudentRegistration = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/auth/register', {
+      const res = await fetch('https://e-learning-backend-7-57nd.onrender.com/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

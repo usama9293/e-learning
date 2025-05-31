@@ -92,7 +92,7 @@ const Profile = () => {
     
       catch(err){
         // enqueueSnackbar('Failed to load sessions:', { variant: 'error' });
-        setSessions([]);
+        SetSessions([]);
       }
     } 
     

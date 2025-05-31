@@ -29,6 +29,7 @@ import {
   StepLabel,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import PaymentIcon from '@mui/icons-material/Payment';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MessageIcon from '@mui/icons-material/Message';
@@ -73,6 +74,7 @@ const Courses = () => {
     name: '',
   });
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const allCourses = async () => {
     try {

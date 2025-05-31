@@ -42,6 +42,7 @@ interface Course {
   image: string;
   created_at: string;
   created_by: number;
+  price: number;
 }
 
 const drawerWidth = 240; 
@@ -59,7 +60,7 @@ const CoursesManagement: React.FC = () => {
     name: '',
     description: '',
     image: '',
-    price:0,
+    price: 0,
   });
   const { enqueueSnackbar } = useSnackbar();
   const [saving, setSaving] = useState(false);
@@ -105,6 +106,7 @@ const CoursesManagement: React.FC = () => {
         name: course.name,
         description: course.description,
         image: course.image,
+        price: course.price,
       });
     } else {
       setSelectedCourse(null);
@@ -112,6 +114,7 @@ const CoursesManagement: React.FC = () => {
         name: '',
         description: '',
         image: '',
+        price: 0,
       });
     }
     setOpenDialog(true);
@@ -311,7 +314,7 @@ const CoursesManagement: React.FC = () => {
                   label="Price"
                   type="Number"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                 />
               
               </Grid>
