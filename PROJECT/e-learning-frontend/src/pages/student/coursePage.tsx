@@ -26,7 +26,7 @@ const CoursePage = () => {
   // const courseId  = parseInt(id);
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const SERVER_URL = 'http://localhost:8000/api/api_v1';
+  const SERVER_URL = 'https://e-learning-backend-7-57nd.onrender.com/api/api_v1';
   const [activeTab, setActiveTab] = useState("materials");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [data, setData] = useState([]);

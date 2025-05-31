@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://e-learning-backend-7-57nd.onrender.com';
 
 export async function fetchSessions(token: string) {
   const res = await fetch('http://localhost:8000/api/v1/admin/sessons', {

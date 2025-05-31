@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/api/v1/auth';
+const API_URL = "https://e-learning-backend-7-57nd.onrender.com/api/v1/auth";
 
 /**
  * Register a new user (student or tutor)
@@ -7,8 +7,8 @@ const API_URL = 'http://localhost:8000/api/v1/auth';
  */
 export async function register(data) {
   const res = await fetch(`${API_URL}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       // Map frontend form fields to backend expected fields
       role: data.role,
@@ -22,7 +22,7 @@ export async function register(data) {
       grade_level: data.gradeLevel,
       emergency_contact: data.emergencyContact,
       parent_guardian: data.parentName,
-    })
+    }),
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
@@ -36,9 +36,9 @@ export async function register(data) {
  */
 export async function login(email, password) {
   const res = await fetch(`${API_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ username: email, password })
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ username: email, password }),
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
@@ -46,8 +46,8 @@ export async function login(email, password) {
 
 export async function getMe(token) {
   const res = await fetch(`${API_URL}/me`, {
-    headers: { 'Authorization': `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
-} 
+}
