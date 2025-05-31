@@ -1,7 +1,7 @@
 const API_URL = 'https://e-learning-backend-7-57nd.onrender.com';
 
 export async function fetchSessions(token: string) {
-  const res = await fetch('http://localhost:8000/api/v1/admin/sessons', {
+  const res = await fetch(`${API_URL}/api/v1/admin/sessons`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error('Failed to fetch sessions');
@@ -9,7 +9,7 @@ export async function fetchSessions(token: string) {
 }
 
 export async function checkEnrollment(token: string, courseId: number) {
-  const res = await fetch(`http://localhost:8000/api/v1/courses/${courseId}enroll`, {
+  const res = await fetch(`${API_URL}/api/v1/courses/${courseId}enroll`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error('Failed to check enrollment'); 
@@ -17,10 +17,8 @@ export async function checkEnrollment(token: string, courseId: number) {
   return await res.json();
 }
 
-
-
-export async function fetchSessionsForCourse(token: string,courseID:Number) {
-  const res = await fetch(`http://localhost:8000/api/v1/courses/${courseID}/sessions`, {
+export async function fetchSessionsForCourse(token: string, courseID: Number) {
+  const res = await fetch(`${API_URL}/api/v1/courses/${courseID}/sessions`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error('Failed to fetch sessions');
