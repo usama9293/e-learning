@@ -34,20 +34,22 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     
     setIsAuthenticated(Boolean(token));
     
-    // Redirect to login if not authenticated and not on landing page
-    if (!token && !isLandingPage) {
+    // Only redirect if not authenticated and not on landing page or login page
+    if (!token && !isLandingPage && !location.pathname.includes('/login')) {
       navigate('/login', { state: { from: location }, replace: true });
     }
     
-    // Redirect to appropriate dashboard if authenticated and on landing page
+    // Only redirect from landing page if authenticated
     if (token && isLandingPage) {
       const redirectPath = {
         student: "/student",
         tutor: "/tutor",
         admin: "/admin"
-      }[currentRole?.toLowerCase() || ""] || "/login";
+      }[currentRole?.toLowerCase() || ""];
       
-      navigate(redirectPath, { replace: true });
+      if (redirectPath && location.pathname !== redirectPath) {
+        navigate(redirectPath, { replace: true });
+      }
     }
   }, [location.pathname, navigate, isLandingPage]);
 

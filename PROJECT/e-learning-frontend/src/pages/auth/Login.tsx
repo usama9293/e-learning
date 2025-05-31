@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -6,20 +6,34 @@ import {
   TextField,
   Link,
   Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem, 
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    
+    if (token && role) {
+      const redirectPath = {
+        student: "/student",
+        tutor: "/tutor",
+        admin: "/admin"
+      }[role.toLowerCase()];
+
+      if (redirectPath) {
+        navigate(redirectPath, { replace: true });
+      }
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,16 +62,15 @@ const Login = () => {
       localStorage.setItem('role', data.role);
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // Force a small delay to ensure storage is complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Redirect based on role
+      const redirectPath = {
+        student: "/student",
+        tutor: "/tutor",
+        admin: "/admin"
+      }[data.role.toLowerCase()];
 
-      // Redirect based on role with replace to prevent back navigation
-      if (data.role === 'student') {
-        navigate('/student', { replace: true });
-      } else if (data.role === 'tutor') {
-        navigate('/tutor', { replace: true });
-      } else if (data.role === 'admin') {
-        navigate('/admin', { replace: true });
+      if (redirectPath) {
+        navigate(redirectPath, { replace: true });
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -90,21 +103,6 @@ const Login = () => {
           required
           margin="normal"
         />
-         {/* <FormControl fullWidth margin="normal">
-              <InputLabel id="role-label">Role</InputLabel>
-              <Select
-                labelId="role-label"
-                id="role"
-                value={role}
-                label="Role"
-                required
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <MenuItem value="student">Student</MenuItem>
-                <MenuItem value="tutor">Tutor</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-              </Select>
-            </FormControl> */}
         {error && (
           <Alert severity="error" sx={{ mt: 1 }}>
             {error}
@@ -122,6 +120,5 @@ const Login = () => {
     </Box>
   );
 };
-
 
 export default Login; 

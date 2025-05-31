@@ -10,22 +10,25 @@ const PrivateRoute = ({ role, children }: PrivateRouteProps) => {
   const isAuthenticated = localStorage.getItem("token") !== null;
   const userRole = localStorage.getItem("role");
 
+  // If not authenticated, redirect to login
   if (!isAuthenticated) {
-    // Save the attempted URL for redirecting after login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!userRole || userRole.toLowerCase() !== role.toLowerCase()) {
-    // Redirect to appropriate dashboard based on role
+  // If authenticated but wrong role, redirect to appropriate dashboard
+  if (userRole && userRole.toLowerCase() !== role.toLowerCase()) {
     const redirectPath = {
       student: "/student",
       tutor: "/tutor",
       admin: "/admin"
-    }[userRole?.toLowerCase() || ""] || "/login";
+    }[userRole.toLowerCase()];
 
-    return <Navigate to={redirectPath} replace />;
+    if (redirectPath) {
+      return <Navigate to={redirectPath} replace />;
+    }
   }
 
+  // If authenticated and correct role, render children
   return <>{children}</>;
 };
 
