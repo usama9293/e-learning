@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = os.getenv(
         "BACKEND_CORS_ORIGINS", 
-        "http://localhost:3000"
+        "http://localhost:3000,https://e-learning-zv2g.vercel.app"
     ).split(",")
 
     class Config:
