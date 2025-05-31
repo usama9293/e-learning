@@ -1,6 +1,7 @@
-import { AppBar, Toolbar, Typography, Button, Box, Container, Stack, IconButton, Menu, MenuItem } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Box, AppBar, Toolbar, Typography, Button, Container, Stack, IconButton, Menu, MenuItem } from '@mui/material';
+import { useAuth } from '../contexts/AuthContext';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 const navItems = [
@@ -16,42 +17,48 @@ const navItems = [
   { label: 'Events', path: '/student-events', role: 'student'},
 ];
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(Boolean(localStorage.getItem('token')));
-  const userRole = localStorage.getItem('role');
-  const isLandingPage = location.pathname === '/';
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Profile menu state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
  
-  // Check authentication on mount and when location changes
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const currentRole = localStorage.getItem('role');
-    
-    setIsAuthenticated(Boolean(token));
-    
-    // Only redirect if not authenticated and not on landing page or login page
-    if (!token && !isLandingPage && !location.pathname.includes('/login')) {
-      navigate('/login', { state: { from: location }, replace: true });
+    // Only run navigation logic after initial mount
+    if (!isInitialized) {
+      setIsInitialized(true);
+      return;
     }
-    
-    // Only redirect from landing page if authenticated
-    if (token && isLandingPage) {
-      const redirectPath = {
-        student: "/student",
-        tutor: "/tutor",
-        admin: "/admin"
-      }[currentRole?.toLowerCase() || ""];
-      
-      if (redirectPath && location.pathname !== redirectPath) {
-        navigate(redirectPath, { replace: true });
+
+    const publicPaths = ['/', '/login', '/register', '/about', '/contact'];
+    const isPublicPath = publicPaths.includes(location.pathname);
+
+    if (!isAuthenticated && !isPublicPath) {
+      navigate('/login', { replace: true });
+    } else if (isAuthenticated && isPublicPath) {
+      // Redirect authenticated users from public pages to their dashboard
+      const role = localStorage.getItem('role')?.toLowerCase();
+      switch(role) {
+        case 'student':
+          navigate('/student', { replace: true });
+          break;
+        case 'tutor':
+          navigate('/tutor', { replace: true });
+          break;
+        case 'admin':
+          navigate('/admin', { replace: true });
+          break;
       }
     }
-  }, [location.pathname, navigate, isLandingPage]);
+  }, [location.pathname, isAuthenticated, navigate, isInitialized]);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -63,7 +70,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const handleProfile = () => {
     handleClose();
-    if(userRole === "tutor"){
+    if(localStorage.getItem('role') === "tutor"){
       navigate('/tutor/profile');
     }
     else{
@@ -72,11 +79,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    handleClose();
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('user');
-    setIsAuthenticated(false);
+    logout();
     navigate('/', { replace: true });
   };
 
@@ -88,7 +91,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static" sx={{ bgcolor: '#003366' }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
@@ -101,19 +104,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             >
               Mathsmastery Institute
             </Typography>
-            {isLandingPage ? (
-              <Stack direction="row" spacing={2}>
-                <Button color="inherit" onClick={() => navigate('/login')}>
-                  Sign In
-                </Button>
-                <Button color="inherit" onClick={() => navigate('/register')}>
-                  Register
-                </Button>
-              </Stack>
-            ) : isAuthenticated ? (
+            {isAuthenticated ? (
               <Stack direction="row" spacing={2} alignItems="center">
                 {navItems
-                  .filter((item) => item.role === userRole)
+                  .filter((item) => item.role === localStorage.getItem('role'))
                   .map((item) => (
                     <Button
                       key={item.label}
@@ -127,6 +121,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       {item.label}
                     </Button>
                   ))}
+                <Typography variant="body1" sx={{ mr: 2 }}>
+                  Welcome, {user?.full_name}
+                </Typography>
                 <IconButton
                   size="large"
                   edge="end"
@@ -152,8 +149,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <Button color="inherit" onClick={() => navigate('/login')}>
                   Login
                 </Button>
-                <Button color="inherit" variant="outlined" onClick={() => navigate('/register')}>
-                  Sign Up
+                <Button color="inherit" onClick={() => navigate('/register')}>
+                  Register
                 </Button>
               </Stack>
             )}

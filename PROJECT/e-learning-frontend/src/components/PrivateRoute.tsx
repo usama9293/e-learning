@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PrivateRouteProps {
   role: string;
@@ -7,28 +8,24 @@ interface PrivateRouteProps {
 
 const PrivateRoute = ({ role, children }: PrivateRouteProps) => {
   const location = useLocation();
-  const isAuthenticated = localStorage.getItem("token") !== null;
-  const userRole = localStorage.getItem("role");
+  const { isAuthenticated } = useAuth();
+  const userRole = localStorage.getItem('role')?.toLowerCase();
 
-  // If not authenticated, redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If authenticated but wrong role, redirect to appropriate dashboard
-  if (userRole && userRole.toLowerCase() !== role.toLowerCase()) {
+  if (userRole !== role.toLowerCase()) {
+    // Redirect to appropriate dashboard based on role
     const redirectPath = {
       student: "/student",
       tutor: "/tutor",
       admin: "/admin"
-    }[userRole.toLowerCase()];
+    }[userRole || ""] || "/";
 
-    if (redirectPath) {
-      return <Navigate to={redirectPath} replace />;
-    }
+    return <Navigate to={redirectPath} replace />;
   }
 
-  // If authenticated and correct role, render children
   return <>{children}</>;
 };
 

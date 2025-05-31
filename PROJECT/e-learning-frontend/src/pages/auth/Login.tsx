@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -7,7 +7,7 @@ import {
   Link,
   Alert,
 } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,25 +15,6 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Check if user is already logged in
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    
-    if (token && role) {
-      const redirectPath = {
-        student: "/student",
-        tutor: "/tutor",
-        admin: "/admin"
-      }[role.toLowerCase()];
-
-      if (redirectPath) {
-        navigate(redirectPath, { replace: true });
-      }
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,24 +38,30 @@ const Login = () => {
 
       const data = await res.json();
       
-      // Store auth data
+      // Clear any existing auth data
+      localStorage.clear();
+      
+      // Store new auth data
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('role', data.role);
       localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Redirect based on role
-      const redirectPath = {
-        student: "/student",
-        tutor: "/tutor",
-        admin: "/admin"
-      }[data.role.toLowerCase()];
 
-      if (redirectPath) {
-        navigate(redirectPath, { replace: true });
+      // Simple redirect based on role
+      switch(data.role.toLowerCase()) {
+        case 'student':
+          window.location.href = '/student';
+          break;
+        case 'tutor':
+          window.location.href = '/tutor';
+          break;
+        case 'admin':
+          window.location.href = '/admin';
+          break;
+        default:
+          window.location.href = '/';
       }
     } catch (err) {
       setError('Network error. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
