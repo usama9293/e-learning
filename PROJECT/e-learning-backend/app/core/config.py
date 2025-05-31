@@ -22,10 +22,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = os.getenv(
-        "BACKEND_CORS_ORIGINS", 
-        "http://localhost:3000,https://e-learning-zv2g.vercel.app"
-    ).split(",")
+    BACKEND_CORS_ORIGINS: list[str] = ["*"]  # Allow all origins temporarily
 
     class Config:
         case_sensitive = True
