@@ -30,7 +30,8 @@ const Login = () => {
       const res = await fetch('https://e-learning-backend-7-57nd.onrender.com/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ username: email, password: password, role: role }),
+        body: new URLSearchParams({ username: email, password: password }),
+        credentials: 'include'
       });
 
       if (!res.ok) {
@@ -41,21 +42,22 @@ const Login = () => {
       }
 
       const data = await res.json();
+      
+      // Store auth data
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('role', data.role);
-      localStorage.setItem('user',JSON.stringify(data.user));
+      localStorage.setItem('user', JSON.stringify(data.user));
       
+      // Force a small delay to ensure storage is complete
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Redirect based on role
+      // Redirect based on role with replace to prevent back navigation
       if (data.role === 'student') {
-        console.log('student');
-          navigate('/student');
+        navigate('/student', { replace: true });
       } else if (data.role === 'tutor') {
-        console.log('tutor');
-        navigate('/tutor');
+        navigate('/tutor', { replace: true });
       } else if (data.role === 'admin') {
-        console.log('admin');
-        navigate('/admin');
+        navigate('/admin', { replace: true });
       }
     } catch (err) {
       setError('Network error. Please try again.');

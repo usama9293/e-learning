@@ -30,11 +30,24 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Check authentication on mount and when location changes
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const currentRole = localStorage.getItem('role');
+    
     setIsAuthenticated(Boolean(token));
     
     // Redirect to login if not authenticated and not on landing page
     if (!token && !isLandingPage) {
-      navigate('/login');
+      navigate('/login', { state: { from: location }, replace: true });
+    }
+    
+    // Redirect to appropriate dashboard if authenticated and on landing page
+    if (token && isLandingPage) {
+      const redirectPath = {
+        student: "/student",
+        tutor: "/tutor",
+        admin: "/admin"
+      }[currentRole?.toLowerCase() || ""] || "/login";
+      
+      navigate(redirectPath, { replace: true });
     }
   }, [location.pathname, navigate, isLandingPage]);
 
@@ -62,7 +75,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     localStorage.removeItem('role');
     localStorage.removeItem('user');
     setIsAuthenticated(false);
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   // Helper to check if nav item is active
